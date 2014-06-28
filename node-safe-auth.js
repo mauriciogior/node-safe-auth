@@ -41,7 +41,7 @@
 			// If the token should expire and in how much time
 			validation : {
 				expires : true,
-				duration : 10000,
+				duration : 10,
 				oneTimeUse : false
 			},
 
@@ -154,8 +154,6 @@
 			if(this.config.validation.expires)
 				this.token.update(req.header(this.config.timeHeader));
 
-			this.token.update(req.header(this.config.tokenHeader));
-
 			if(this.config.dev)
 			{
 				console.log("[generateToken]");
@@ -169,16 +167,20 @@
 				console.log("    " + this.config.tokenHeader + ": " + req.header(this.config.tokenHeader));
 			}
 
-			console.log("  Body parts");
-			for(var key in req.body)
-			{
-				this.token.update(key + ":" + get[key]);
+			/*console.log("  Body parts");
 
-				if(this.config.dev)
+			if(this.config.algorithm != this.constants.HmacSHA1)
+			{
+				for(var key in req.body)
 				{
-					console.log("    " + key + ":" + get[key]);
+					this.token.update(key + ":" + get[key]);
+
+					if(this.config.dev)
+					{
+						console.log("    " + key + ":" + get[key]);
+					}
 				}
-			}
+			}*/
 
 			if(this.config.dev)
 				console.log("");
