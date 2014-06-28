@@ -1,0 +1,24 @@
+{
+  "name": "safe-auth",
+  "version": "0.0.1",
+  "description": "A library that provides a really safe authentication method. It is based on Amazon concept.",
+  "main": "safe-auth.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mauriciogior/node-safe-auth.git"
+  },
+  "keywords": [
+    "authentication",
+    "safe",
+    "token"
+  ],
+  "author": "Mauricio Giordano <mauricio.c.giordano@gmail.com> (http://mauriciogiordano.com/)",
+  "license": "GPL v2",
+  "bugs": {
+    "url": "https://github.com/mauriciogior/node-safe-auth/issues"
+  },
+  "homepage": "https://github.com/mauriciogior/node-safe-auth"
+}
