@@ -1,3 +1,8 @@
+/**
+ * Author: Mauricio Giordano
+ * Github: https://github.com/mauriciogior
+ * Main repository: https://github.com/mauriciogior/node-safe-auth
+ */
 (function()
 {
 	/**
@@ -29,6 +34,9 @@
 
 			// The output of the generated token
 			output : 0x10, // Hex
+
+			// If I should print dev logs
+			dev : false,
 
 			// If the token should expire and in how much time
 			validation : {
@@ -86,6 +94,14 @@
 				case this.constants.HmacSHA1:
 					this.baseToken = crypto.createHmac('sha1', secret);
 					break;
+
+				case this.constants.HmacSHA256:
+					this.baseToken = crypto.createHmac('sha256', secret);
+					break;
+
+				case this.constants.HmacSHA256:
+					this.baseToken = crypto.createHmac('sha512', secret);
+					break;
 			}
 		},
 
@@ -140,10 +156,32 @@
 
 			this.token.update(req.header(this.config.tokenHeader));
 
+			if(this.config.dev)
+			{
+				console.log("[generateToken]");
+				console.log("  Node Path: " + path);
+				console.log("  Headers:")
+				console.log("    " + this.config.idHeader + ": " + req.header(this.config.idHeader));
+
+				if(this.config.validation.expires)
+					console.log("    " + this.config.timeHeader + ": " + req.header(this.config.timeHeader));
+
+				console.log("    " + this.config.tokenHeader + ": " + req.header(this.config.tokenHeader));
+			}
+
+			console.log("  Body parts");
 			for(var key in req.body)
 			{
 				this.token.update(key + ":" + get[key]);
+
+				if(this.config.dev)
+				{
+					console.log("    " + key + ":" + get[key]);
+				}
 			}
+
+			if(this.config.dev)
+				console.log("");
 		},
 
 		/**
@@ -152,15 +190,29 @@
 		 * @param  {[String]} token
 		 * @return {[boolean]}
 		 */
-		validate : function(req, token)
+		validate : function(req)
 		{
+			var token = req.header(this.config.tokenHeader);
+
+			if(this.config.dev)
+				console.log("[validate]");
+
 			if(this.config.validation.expires)
 			{
 				var toCompareWith = req.header(this.config.timeHeader);
 				toCompareWith = parseInt(toCompareWith);
 
+				if(this.config.dev)
+				{
+					console.log("Given timestamp: " + req.header(this.config.timeHeader));
+					console.log("Difference: " + (this.timestamp() - toCompareWith));
+				}
+
 				if(this.timestamp() - toCompareWith > this.config.validation.duration)
 				{
+					if(this.config.dev)
+						console.log("##EXPIRED##");
+
 					return false;
 				}
 				else
@@ -171,6 +223,9 @@
 
 						if(isTokenAlreadyUsed(token))
 						{
+							if(this.config.dev)
+								console.log("##ALREADY USED##");
+
 							return false;
 						}
 					}
@@ -184,6 +239,24 @@
 				case this.constants.Hex:
 					this.token = this.token.digest('hex');
 					break;
+
+				case this.constants.Base64:
+					this.token = this.token.digest('base64');
+					break;
+
+				case this.constants.Binary:
+					this.token = this.token.digest('binary');
+					break;
+
+				default:
+					this.token = this.token.digest();
+					break;
+			}
+
+			if(this.config.dev)
+			{
+				console.log("Generated Token: " + this.token);
+				console.log("Given Token: " + token);
 			}
 
 			return (this.token == token);
@@ -218,17 +291,13 @@
 		this.HmacMD5 = 0x6
 		*/
 		this.HmacSHA1 = 0x7;
-		/*
 		this.HmacSHA256 = 0x8;
 		this.HmacSHA512 = 0x9;
 
 		// Digests
-		*/
 		this.Hex = 0x10;
-		/*
 		this.Base64 = 0x11;
-		this.Default = 0x12;
-		*/
+		this.Binary = 0x12;
 	}
 
 	/**
